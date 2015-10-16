@@ -1,0 +1,113 @@
+package testquestions;
+//edited and modified by Sami Abdelghani
+import java.util.ArrayList;
+
+public class BinaryNode {
+
+	private String desc;
+	private BinaryNode leftNode = null;
+	private BinaryNode rightNode = null;
+	
+
+	
+	public BinaryNode(String desc) {
+		this.desc = desc;
+	}
+	
+	public String getDesc() {
+		return desc;
+	}
+	
+	public BinaryNode getLeftNode() {
+		return leftNode;
+	}
+	
+	public BinaryNode getRightNode() {
+		return rightNode;
+	}
+	
+    /* properly replace the old BinaryNode from the tree with the new replacement BinaryNode while keeping necessary connections 
+	   within the BinaryTree */
+	public static BinaryNode replaceNodeConnections(BinaryNode previousNode,BinaryNode oldNode, BinaryNode newNode)
+	{
+		if(previousNode.getLeftNode() == oldNode)
+		{
+			previousNode.leftNode = newNode;
+		}
+		else if(previousNode.getRightNode() == oldNode)
+		{
+			previousNode.rightNode = newNode;
+		}
+		
+		newNode.leftNode = oldNode.getLeftNode();
+		newNode.rightNode = oldNode.getRightNode();
+		
+		oldNode.leftNode = null;
+		oldNode.rightNode = null;
+	}
+	
+	//Recursive version of DFS through the binary tree and add each BinaryNode into an ArrayList while traversing the tree
+	public static void dfs(BinaryNode root, ArrayList<BinaryNode> BinaryTreeNodes)
+	{   
+		if(root != null)
+		{
+		  BinaryTreeNodes.add(root);	
+          dfs(root.getLeftNode(), BinaryTreeNodes);
+          dfs(root.getRightNode(), BinaryTreeNodes);
+		}
+    }
+    
+	/**
+	 * Find any node within the "originalTree" that has the description matching "oldDesc" 
+	 * and correctly replace that single node with a new node containing "newDesc", 
+	 * maintaining the tree above and below the replaced node.  It is important that the node 
+	 * is a new object and not simply a changed description.  
+	 * 
+	 * @param originalTree  Root node of the tree
+	 * @param oldDesc String that identifies the nodes to replace.  
+	 * @param newDesc The description of the new nodes to be placed within the tree.
+	 */
+	public static void replaceNode(BinaryNode originalTree, String oldDesc, String newDesc)
+	{
+		//TODO Complete this implementation
+		//create the new BinaryNode Object that is meant to replace a BinaryNode with the oldDesc string
+		BinaryNode replacementNode = new BinaryNode(newDesc); 
+		ArrayList<BinaryNode> BinaryTreeNodes = new ArrayList<BinaryNode>(); //used to store each node in the ArrayList
+		dfs(originalTree, BinaryTreeNodes);
+		BinaryNode previousNode = BinaryTreeNodes.get(0); //to keep track of each current node's parent while iterating through the Arraylist
+		Boolean not_found = true;  //Boolean describing if a node with string oldDesc was found and replaced
+		Boolean not_found_prev = true; //Boolean for iterating through a loop when trying to find the current nodes's parent node 
+		/*iterate through the ArrayList of every BinaryNode until the replaceable BinaryNode
+		is found or until every index of the ArrayList was checked*/ 
+		for(int i = 0; i < BinaryTreeNodes.size() && not_found; i++)
+		{
+			/*if the previousNode was at the end of one branch and the currentNode is on a different branch,
+			then the parentNode of the currentNode needs to be found and the previousNode needs to be updated as the current node's 
+			parentNode*/
+			if(previousNode.getLeftNode() != BinaryTreeNodes.get(i) && previousNode.getRightNode() != BinaryTreeNodes.get(i) && previousNode != BinaryTreeNodes.get(i))
+			{
+				not_found_prev = true;
+				for(int j = 0; j < BinaryTreeNodes.size() && not_found_prev; j++)
+				{
+					if(BinaryTreeNodes.get(j).getLeftNode() == BinaryTreeNodes.get(i) || BinaryTreeNodes.get(j).getRightNode() == BinaryTreeNodes.get(i))
+					{
+						previousNode = BinaryTreeNodes.get(j);
+						not_found_prev = false;
+					}
+				}
+			}
+			
+			if(BinaryTreeNodes.get(i).getDesc() == oldDesc)
+			{
+				replaceNodeConnections(previousNode, BinaryTreeNodes.get(i), replacementNode);
+				not_found = false;
+			}
+			else
+			{
+				previousNode = BinaryTreeNodes.get(i);
+			}
+		}
+	}
+}
+
+
